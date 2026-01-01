@@ -109,7 +109,9 @@ uint32_t DFU::get_poll_timeout() const {
     return 20;  // milliseconds
 }
 
-bool DFU::request_detach(TSetupPacket *pSetup, uint32_t *piLen, uint8_t* pbData) {
+bool DFU::request_detach(const TSetupPacket *const pSetup, uint32_t *const piLen, uint8_t* pbData) {
+    (void) piLen;
+    (void) pbData;
     if( (pSetup->wLength == 0) && (pSetup->wValue <= detach_timeout_ms) ) {
         // TODO: Check DFU vs. APP mode, and reboot device if in DFU mode?
         set_state(APPDETACH);
@@ -119,7 +121,8 @@ bool DFU::request_detach(TSetupPacket *pSetup, uint32_t *piLen, uint8_t* pbData)
     }
 }
 
-bool DFU::request_dnload(TSetupPacket *pSetup, uint32_t *piLen, uint8_t *pbData) {
+bool DFU::request_dnload(const TSetupPacket *const pSetup, uint32_t *const piLen, uint8_t *pbData) {
+    (void) piLen;
     if( pSetup->wLength == 0 ) {
         if( get_state() != DFUDNLOAD_IDLE ) {
             return error(ERRSTALLEDPKT);
@@ -153,7 +156,7 @@ bool DFU::request_dnload(TSetupPacket *pSetup, uint32_t *piLen, uint8_t *pbData)
     }
 }
 
-bool DFU::request_upload(TSetupPacket *pSetup, uint32_t *piLen, uint8_t* pbData) {
+bool DFU::request_upload(const TSetupPacket *const pSetup, uint32_t *const piLen, uint8_t* pbData) {
     if( pSetup->wLength == transfer_size ) {
         if( (get_state() != DFUIDLE) && (get_state() != DFUUPLOAD_IDLE) ) {
             return error(ERRSTALLEDPKT);
@@ -175,7 +178,7 @@ bool DFU::request_upload(TSetupPacket *pSetup, uint32_t *piLen, uint8_t* pbData)
     }
 }
 
-bool DFU::request_getstatus(TSetupPacket *pSetup, uint32_t *piLen, uint8_t* pbData) {
+bool DFU::request_getstatus(const TSetupPacket *const pSetup, uint32_t *const piLen, uint8_t* pbData) {
     if( (pSetup->wValue == 0) && (pSetup->wLength == 6) ) {
         switch( get_state() ) {
             case DFUDNLOAD_SYNC:
@@ -203,7 +206,9 @@ bool DFU::request_getstatus(TSetupPacket *pSetup, uint32_t *piLen, uint8_t* pbDa
     }
 }
 
-bool DFU::request_clrstatus(TSetupPacket *pSetup, uint32_t *piLen, uint8_t* pbData) {
+bool DFU::request_clrstatus(const TSetupPacket *const pSetup, uint32_t *const piLen, uint8_t* pbData) {
+    (void) piLen;
+    (void) pbData;
     if( (pSetup->wValue == 0) && (pSetup->wLength == 0) ) {
         if( get_state() == DFUERROR ) {
             set_status(OK);
@@ -217,7 +222,7 @@ bool DFU::request_clrstatus(TSetupPacket *pSetup, uint32_t *piLen, uint8_t* pbDa
     }
 }
 
-bool DFU::request_getstate(TSetupPacket *pSetup, uint32_t *piLen, uint8_t* pbData) {
+bool DFU::request_getstate(const TSetupPacket *const pSetup, uint32_t *const piLen, uint8_t* pbData) {
     if( (pSetup->wValue == 0) && (pSetup->wLength == 1) ) {
         pbData[0] = get_state();
         *piLen = 1;
@@ -227,7 +232,9 @@ bool DFU::request_getstate(TSetupPacket *pSetup, uint32_t *piLen, uint8_t* pbDat
     }
 }
 
-bool DFU::request_abort(TSetupPacket *pSetup, uint32_t *piLen, uint8_t* pbData) {
+bool DFU::request_abort(const TSetupPacket *const pSetup, uint32_t *const piLen, uint8_t* pbData) {
+    (void) piLen;
+    (void) pbData;
     if( (pSetup->wValue == 0) && (pSetup->wLength == 0) ) {
         if( get_state() != DFUERROR ) {
             set_state(DFUIDLE);

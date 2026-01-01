@@ -1,0 +1,25 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../../ubertooth/host/ubertooth-tools/src"
+		}
+	],
+	"settings": {
+		"makefile.configurations": [
+		{
+            "makeDirectory": "bootloader",
+            "name": "Bootloader configuration"
+        },
+		{
+            "makeDirectory": "bootloader",
+            "name": "Bootloader configuration with CC2400 init debug",
+			"makeArgs": [
+				"DEBUG_CC2400_CLOCK_INIT=0x1F"
+			]
+        }
+		]
+	}
+}

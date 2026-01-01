@@ -41,22 +41,22 @@ public:
         BUSY                                    = 11,
     };
 
-    ReturnCode prepare_sectors_for_write_operation(const uint32_t start_sector_number,
+    static ReturnCode prepare_sectors_for_write_operation(const uint32_t start_sector_number,
                                                    const uint32_t end_sector_number);
     
-    ReturnCode copy_ram_to_flash(const uint32_t destination_flash_address,
+    static ReturnCode copy_ram_to_flash(const uint32_t destination_flash_address,
                                  const uint32_t source_ram_address,
                                  const uint32_t number_of_bytes_to_write,
                                  const uint32_t cpu_clock_frequency_khz);
 
-    ReturnCode erase_sectors(const uint32_t start_sector_number,
+    static ReturnCode erase_sectors(const uint32_t start_sector_number,
                              const uint32_t end_sector_number,
                              const uint32_t cpu_clock_frequency_khz);
     
-    ReturnCode blank_check_sectors(const uint32_t start_sector_number,
+    static ReturnCode blank_check_sectors(const uint32_t start_sector_number,
                                    const uint32_t end_sector_number);
     
-    ReturnCode compare(const uint32_t destination_address,
+    static ReturnCode compare(const uint32_t destination_address,
                        const uint32_t source_address,
                        const uint32_t number_of_bytes_to_compare);
 

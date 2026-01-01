@@ -32,18 +32,18 @@ public:
         const uint32_t sector = sector_number(flash_address);
         if( at_sector_boundary(flash_address) ) {
             if( result == IAP::CMD_SUCCESS) {
-                result = iap.prepare_sectors_for_write_operation(sector, sector);
+                result = IAP::prepare_sectors_for_write_operation(sector, sector);
             }
             if( result == IAP::CMD_SUCCESS) {
-                result = iap.erase_sectors(sector, sector, cclk_khz);
+                result = IAP::erase_sectors(sector, sector, cclk_khz);
             }
         }
         
         if( result == IAP::CMD_SUCCESS) {
-            result = iap.prepare_sectors_for_write_operation(sector, sector);
+            result = IAP::prepare_sectors_for_write_operation(sector, sector);
         }
         if( result == IAP::CMD_SUCCESS ) {
-            iap.copy_ram_to_flash(flash_address, source_address, length, cclk_khz);
+            IAP::copy_ram_to_flash(flash_address, source_address, length, cclk_khz);
         }
         
         return (result == IAP::CMD_SUCCESS);
@@ -54,7 +54,7 @@ public:
     }
     
 private:
-    IAP iap;
+    //IAP iap;
     
     static const uint32_t cclk_khz = 100000;
     

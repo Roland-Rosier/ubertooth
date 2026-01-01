@@ -124,14 +124,16 @@ EXTRAINCDIRS = $(LIBS_PATH) $(LPCUSB_PATH) ../../host/libubertooth/src
 #     gnu99 = c99 plus GCC extensions
 CSTANDARD = -std=gnu99
 
+USE_DEBUG_CC2400_CLOCK_INIT = $(if $(DEBUG_CC2400_CLOCK_INIT),-DDEBUG_CC2400_CLOCK_INIT=$(DEBUG_CC2400_CLOCK_INIT),)
+
 # Place -D or -U options here for C sources
-CDEFS  = -D$(BOARD) -D$(LPCUSB_TARGET) $(COMPILE_OPTS) -Wa,-a,-ad
+CDEFS  = -D$(BOARD) -D$(LPCUSB_TARGET) $(USE_DEBUG_CC2400_CLOCK_INIT) $(COMPILE_OPTS) -Wa,-a,-ad
 
 # Place -D or -U options here for ASM sources
 ADEFS =
 
 # Place -D or -U options here for C++ sources
-CPPDEFS = -D$(BOARD) -D$(LPCUSB_TARGET) $(COMPILE_OPTS)
+CPPDEFS = -D$(BOARD) -D$(LPCUSB_TARGET) $(USE_DEBUG_CC2400_CLOCK_INIT) $(COMPILE_OPTS)
 
 #---------------- Compiler Options C ----------------
 #  -g*:          generate debugging information

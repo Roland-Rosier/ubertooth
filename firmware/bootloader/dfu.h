@@ -32,7 +32,10 @@
 #define DESC_DFU_FUNCTIONAL         0x21
 
 /* Hack to clean up the namespace pollution from lpc17.h */
+/* Check to see if Status is already defined - make SonarQube happy */
+#ifdef Status
 #undef Status
+#endif
 
 class DFU {
 public:
@@ -46,7 +49,7 @@ public:
         CAN_DNLOAD             = (1 << 0),
     };
     
-    DFU(Flash& flash);
+    explicit DFU(Flash& flash);
     
     bool request_handler(TSetupPacket *pSetup, uint32_t *piLen, uint8_t **ppbData);
     
@@ -114,13 +117,13 @@ private:
     uint8_t get_status_string_id() const;
     uint32_t get_poll_timeout() const;
     
-    bool request_detach(TSetupPacket *pSetup, uint32_t *piLen, uint8_t* ppbData);
-    bool request_dnload(TSetupPacket *pSetup, uint32_t *piLen, uint8_t* ppbData);
-    bool request_upload(TSetupPacket *pSetup, uint32_t *piLen, uint8_t* ppbData);
-    bool request_getstatus(TSetupPacket *pSetup, uint32_t *piLen, uint8_t* ppbData);
-    bool request_clrstatus(TSetupPacket *pSetup, uint32_t *piLen, uint8_t* ppbData);
-    bool request_getstate(TSetupPacket *pSetup, uint32_t *piLen, uint8_t* ppbData);
-    bool request_abort(TSetupPacket *pSetup, uint32_t *piLen, uint8_t* ppbData);
+    bool request_detach(const TSetupPacket *const pSetup, uint32_t *const piLen, uint8_t* ppbData);
+    bool request_dnload(const TSetupPacket *const pSetup, uint32_t *const piLen, uint8_t* ppbData);
+    bool request_upload(const TSetupPacket *const pSetup, uint32_t *const piLen, uint8_t* ppbData);
+    bool request_getstatus(const TSetupPacket *const pSetup, uint32_t *const piLen, uint8_t* ppbData);
+    bool request_clrstatus(const TSetupPacket *const pSetup, uint32_t *const piLen, uint8_t* ppbData);
+    bool request_getstate(const TSetupPacket *const pSetup, uint32_t *const piLen, uint8_t* ppbData);
+    bool request_abort(const TSetupPacket *const pSetup, uint32_t *const piLen, uint8_t* ppbData);
 };
 
 #endif /* _DFU_H_ */

@@ -57,6 +57,53 @@ void wait_us(u32 us)
 	while(--wait_us_counter);
 }
 
+#if defined (DEBUG_CC2400_CLOCK_INIT) && (DEBUG_CC2400_CLOCK_INIT > 0)
+void flash_user_led(const u8 starting_state, u8 reps_times_2, const u16 ms_in_starting_state, const u16 ms_in_other_state)
+{
+	u8 led_state = starting_state;
+	while (reps_times_2 > 1)
+	{
+		if ( 0 == led_state )
+		{
+			USRLED_CLR;
+			led_state = 1;
+		}
+		else
+		{
+			USRLED_SET;
+			led_state = 0;
+		}
+		wait_ms(ms_in_starting_state);
+		if ( 0 == led_state )
+		{
+			USRLED_CLR;
+			led_state = 1;
+		}
+		else
+		{
+			USRLED_SET;
+			led_state = 0;
+		}
+		wait_ms(ms_in_other_state);
+		reps_times_2 -= 2;
+	}
+	if ( reps_times_2 != 0 )
+	{
+		if ( 0 == led_state )
+		{
+			USRLED_CLR;
+			led_state = 1;
+		}
+		else
+		{
+			USRLED_SET;
+			led_state = 0;
+		}
+		wait_ms(ms_in_starting_state);
+	}
+}
+#endif
+
 
 /*
  * This should be called very early by every firmware in order to ensure safe
@@ -451,15 +498,30 @@ void clock_start()
 	/* switch to the internal oscillator if necessary */
 	CLKSRCSEL = 0;
 
+	#if defined (DEBUG_CC2400_CLOCK_INIT) && ((DEBUG_CC2400_CLOCK_INIT & 0x01) == 0x01)
+	/* Should now be running on internal clock, so should be able to use the internal clock wait functions */
+	flash_user_led(1, 8, 500, 500);
+	#endif
+
 	/* disconnect PLL0 */
 	PLL0CON &= ~PLL0CON_PLLC0;
 	PLL0FEED_SEQUENCE;
 	while (PLL0STAT & PLL0STAT_PLLC0_STAT);
 
+	#if defined (DEBUG_CC2400_CLOCK_INIT) && ((DEBUG_CC2400_CLOCK_INIT & 0x02) == 0x02)
+	/* Indicate that PLL0 has been disconnected */
+	flash_user_led(1, 8, 250, 250);
+	#endif
+
 	/* turn off PLL0 */
 	PLL0CON &= ~PLL0CON_PLLE0;
 	PLL0FEED_SEQUENCE;
 	while (PLL0STAT & PLL0STAT_PLLE0_STAT);
+
+	#if defined (DEBUG_CC2400_CLOCK_INIT) && ((DEBUG_CC2400_CLOCK_INIT & 0x04) == 0x04)
+	/* Indicate that PLL0 has been turned off */
+	flash_user_led(1, 8, 125, 125);
+	#endif
 
 	/* temporarily set CPU clock divider to 1 */
 	CCLKCFG = 0;
@@ -470,9 +532,19 @@ void clock_start()
 	cc2400_strobe(SXOSCON);
 	while (!(cc2400_status() & XOSC16M_STABLE));
 
+	#if defined (DEBUG_CC2400_CLOCK_INIT) && ((DEBUG_CC2400_CLOCK_INIT & 0x08) == 0x08)
+	/* Indicate that the CC2400 has been setup and is stable */
+	flash_user_led(1, 8, 62, 62);
+	#endif
+
 	/* activate main oscillator */
 	SCS = SCS_OSCEN;
 	while (!(SCS & SCS_OSCSTAT));
+
+	#if defined (DEBUG_CC2400_CLOCK_INIT) && ((DEBUG_CC2400_CLOCK_INIT & 0x10) == 0x10)
+	/* Indicate that the main oscillator has been started */
+	flash_user_led(1, 8, 250, 125);
+	#endif
 
 	/*
 	 * errata sheet says we must select peripheral clock before enabling and

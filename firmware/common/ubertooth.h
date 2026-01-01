@@ -282,7 +282,7 @@ enum operating_modes {
 /*
  * clock configuration
  *
- * main oscillator:  16 MHz (from CC2400)
+ * 4 oscillator:  16 MHz (from CC2400)
  * CPU clock (PLL0): 100 MHz
  * USB clock (PLL1): 48 MHz
  *
