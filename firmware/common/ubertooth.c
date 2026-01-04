@@ -48,17 +48,34 @@ u32 rbit(u32 value) {
 static volatile u32 wait_us_counter;
 void wait_us(u32 us)
 {
+	/* Note that the original delay loop is stated to have had 6
+	   instructions, but with newer GCC versions, the loop seems
+	   to have 5 instructions, which needs a change to the
+	   multiplication constant. The oldest GCC that I have is 
+	   version 10, so I will test for that; older GCCs may still
+	   have the issue, so if you have an older GCC which generates
+	   loop code with 5 instructions, please adjust the macro
+	   accordingly. */
+#if __GNUC__ < 10
 	/* This is binary multiply by ~0.3999, i.e, multiply by
-	   0.011011011b. The loop also contains 6 instructions at -Os, so
+	   0.01100110011b. The loop also contains 6 instructions at -Os, so
 	   why this factor works is not at all related to the comment
 	   above ;-) */
 	wait_us_counter =
 		(us>>2) + (us>>3) + (us>>6) + (us>>7) + (us>>10) + (us>>11);
+#else
+	/* This is binary multiply by ~0.5599, i.e, multiply by
+	   0.10001111011b. The loop also contains 5 instructions at -Os, so
+	   why this factor works is not at all related to the comment
+	   above ;-) */
+	wait_us_counter =
+		(us>>1) + (us>>5) + (us>>6) + (us>>7) + (us>>8) + (us>>10) + (us>>11);
+#endif
 	while(--wait_us_counter);
 }
 
 #if defined (DEBUG_CC2400_CLOCK_INIT) && (DEBUG_CC2400_CLOCK_INIT > 0)
-void flash_user_led(const u8 starting_state, u8 reps_times_2, const u16 ms_in_starting_state, const u16 ms_in_other_state)
+static void flash_user_led(const u8 starting_state, u8 reps_times_2, const u16 ms_in_starting_state, const u16 ms_in_other_state)
 {
 	u8 led_state = starting_state;
 	while (reps_times_2 > 1)
@@ -528,22 +545,26 @@ void clock_start()
 
 	/* configure CC2400 oscillator, output carrier sense on GIO6 */
 	cc2400_reset();
+	#if defined (DEBUG_CC2400_CLOCK_INIT) && ((DEBUG_CC2400_CLOCK_INIT & 0x08) == 0x08)
+	/* Indicate that the CC2400 has been reset */
+	flash_user_led(1, 8, 62, 62);
+	#endif
 	cc2400_set(IOCFG, (GIO_CARRIER_SENSE_N << 9) | (GIO_CLK_16M << 3));
 	cc2400_strobe(SXOSCON);
 	while (!(cc2400_status() & XOSC16M_STABLE));
 
-	#if defined (DEBUG_CC2400_CLOCK_INIT) && ((DEBUG_CC2400_CLOCK_INIT & 0x08) == 0x08)
+	#if defined (DEBUG_CC2400_CLOCK_INIT) && ((DEBUG_CC2400_CLOCK_INIT & 0x10) == 0x10)
 	/* Indicate that the CC2400 has been setup and is stable */
-	flash_user_led(1, 8, 62, 62);
+	flash_user_led(1, 8, 250, 125);
 	#endif
 
 	/* activate main oscillator */
 	SCS = SCS_OSCEN;
 	while (!(SCS & SCS_OSCSTAT));
 
-	#if defined (DEBUG_CC2400_CLOCK_INIT) && ((DEBUG_CC2400_CLOCK_INIT & 0x10) == 0x10)
+	#if defined (DEBUG_CC2400_CLOCK_INIT) && ((DEBUG_CC2400_CLOCK_INIT & 0x20) == 0x20)
 	/* Indicate that the main oscillator has been started */
-	flash_user_led(1, 8, 250, 125);
+	flash_user_led(1, 8, 125, 250);
 	#endif
 
 	/*
